@@ -1,0 +1,19 @@
+{
+  "name": "contribution-graph-animator",
+  "version": "1.0.0",
+  "description": "Generate a looping, script-free animated SVG of a GitHub contribution graph with a combinatorial library of animation forms, custom text panels, and color themes.",
+  "type": "module",
+  "bin": {
+    "contribution-graph-animator": "src/index.js"
+  },
+  "scripts": {
+    "preview": "node src/index.js octocat preview.svg --mock --animation=radial-center--pulse-glow --theme=green --text=PREVIEW",
+    "list-animations": "node src/index.js --list-animations",
+    "catalog": "node scripts/generate-catalog-doc.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}

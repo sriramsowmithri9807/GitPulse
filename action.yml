@@ -1,0 +1,53 @@
+name: 'Contribution Graph Animator'
+description: 'Generate a looping, script-free animated SVG of a GitHub contribution graph — 100 animation forms, custom text panel, color themes.'
+branding:
+  icon: 'activity'
+  color: 'green'
+
+inputs:
+  username:
+    description: 'GitHub username whose contribution graph to render'
+    required: true
+  token:
+    description: 'Token with read:user scope. The default job token works for the calling user''s own graph.'
+    required: false
+    default: ${{ github.token }}
+  output:
+    description: 'Path to write the generated SVG'
+    required: false
+    default: 'contribution.svg'
+  animation:
+    description: 'Animation form name, e.g. spiral--pulse-glow. Run the CLI with --list-animations for all 100.'
+    required: false
+    default: 'sweep-left-right--reveal'
+  theme:
+    description: 'Named palette: green | blue | purple | red | sunset | mono'
+    required: false
+    default: 'green'
+  colors:
+    description: 'Custom palette: 5 hex level colors [+ empty [+ accent]], comma-separated. Overrides theme.'
+    required: false
+    default: ''
+  text:
+    description: 'Optional string rendered as an animated pixel-art panel next to the graph'
+    required: false
+    default: ''
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    - name: Generate animated SVG
+      shell: bash
+      run: >
+        node "${{ github.action_path }}/src/index.js"
+        "${{ inputs.username }}"
+        "${{ inputs.output }}"
+        --token="${{ inputs.token }}"
+        --animation="${{ inputs.animation }}"
+        --theme="${{ inputs.theme }}"
+        --colors="${{ inputs.colors }}"
+        --text="${{ inputs.text }}"

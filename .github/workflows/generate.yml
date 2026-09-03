@@ -1,0 +1,61 @@
+name: Generate contribution graph
+
+on:
+  schedule:
+    - cron: '17 3 * * *' # daily at 03:17 UTC
+  workflow_dispatch:
+    inputs:
+      animation:
+        description: 'Animation form (overrides the ANIMATION repo variable for this run)'
+        required: false
+        default: ''
+      theme:
+        description: 'Theme (overrides the THEME repo variable for this run)'
+        required: false
+        default: ''
+      text:
+        description: 'Text panel (overrides the TEXT repo variable for this run)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write # force-push the generated SVG to the dedicated `output` branch
+
+concurrency:
+  group: contribution-graph
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate SVG
+        run: >
+          node src/index.js
+          "${{ github.repository_owner }}"
+          dist/contribution.svg
+          --token="${{ secrets.GITHUB_TOKEN }}"
+          --animation="${{ github.event.inputs.animation || vars.ANIMATION || 'spiral--pulse-glow' }}"
+          --theme="${{ github.event.inputs.theme || vars.THEME || 'green' }}"
+          --colors="${{ vars.COLORS }}"
+          --text="${{ github.event.inputs.text || vars.TEXT || '' }}"
+
+      - name: Publish to the output branch (never touches main)
+        run: |
+          set -euo pipefail
+          mkdir -p out && cp dist/contribution.svg out/contribution.svg
+          cd out
+          git init -q
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add contribution.svg
+          git commit -q -m "Update contribution graph ($(date -u +%FT%TZ))"
+          git branch -M output
+          git remote add origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          git push -f origin output
