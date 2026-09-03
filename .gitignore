@@ -1,6 +1,18 @@
 node_modules/
-preview.svg
 dist/
 *.log
 
+# local env
+.env
+.env.local
+.vercel
+
+# generated preview output
+preview.svg
+packages/**/preview.svg
+
+# generated extension icons (produced by `npm run icons`)
+packages/extension/icons/
+
+# editor / tooling local settings
 .claude/

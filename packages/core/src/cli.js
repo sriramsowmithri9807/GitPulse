@@ -1,8 +1,10 @@
 #!/usr/bin/env node
-// CLI entry point.
+// Local preview / dev CLI for the animation engine. Not a shipping surface —
+// the extension and the site are what users touch. Handy for eyeballing forms
+// and for the smoke test's fixtures.
 //
-//   node src/index.js <user> <outPath> [flags]
-//   node src/index.js --list-animations
+//   node packages/core/src/cli.js <user> <outPath> [flags]
+//   node packages/core/src/cli.js --list-animations
 //
 // flags:
 //   --animation=NAME     form name, e.g. spiral--pulse-glow (default sweep-left-right--reveal)
@@ -14,7 +16,7 @@
 
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
-import { fetchContributions, generateMockGrid } from './fetchContributions.js';
+import { fetchContributions, generateMockGrid } from './contributions.js';
 import { renderSvg } from './renderSvg.js';
 import { getPalette } from './themes.js';
 import { listAnimations, CATALOG } from './animationCatalog.js';

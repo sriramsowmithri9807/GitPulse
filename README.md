@@ -1,125 +1,100 @@
-# Contribution Graph Animator
+# GitPulse
 
-Generates a looping, **script-free** animated SVG of your GitHub contribution
-graph. The animation is a *combinatorial system*, not one fixed effect:
+**A browser extension that animates your _live_ GitHub contribution graph.**
 
-- **10 timing patterns** decide *when* each filled cell takes its turn
-- **10 visual effects** decide *how* a cell looks at its turn
-- → **100 named forms**, e.g. `radial-center--pulse-glow`
+You sign in, pick an animation form, a theme, and an optional pixel-art text
+panel — on the extension popup or on the hosted dashboard — and GitPulse
+replaces the real streak grid on `github.com/<you>` with the animated version,
+in place, as you browse.
 
-Plus an optional animated **pixel-art text panel** and swappable **color
-themes** (or a fully custom hex palette).
+It is **not** a README image, **not** a profile embed, and it doesn't write
+anything to any repo. The animation exists only in your browser, painted over
+the contribution calendar GitHub already rendered.
 
-The output is a single self-contained `.svg` with no external assets and no
-JavaScript — it animates with pure CSS `@keyframes`, so GitHub's `<img>` / camo
-proxy renders it fine in a profile README.
+```
+ ┌───────────┐        ┌──────────────────────────┐        ┌───────────────────┐
+ │  Dashboard │  push  │   Extension (MV3)         │  reads │  github.com/<you> │
+ │  (sign in, ├───────►│   • popup / options UI    ├───────►│  contribution     │
+ │   design)  │ config │   • content script        │  DOM   │  calendar         │
+ └───────────┘        │   • swaps in animated SVG │        └───────────────────┘
+        ▲              └──────────────────────────┘
+        │  GitHub OAuth (read:user) — serverless, secret stays on the server
+        ▼
+   /api/oauth/*  ·  /api/config/:user  ·  /api/grid
+```
 
-## How it works
+## Repository layout
 
-| Piece | File | Responsibility |
+This is an npm-workspaces monorepo.
+
+| Package | Path | What it is |
 | --- | --- | --- |
-| Fetch | [src/fetchContributions.js](src/fetchContributions.js) | GraphQL `contributionCalendar` → `grid[week][day] = {count,date}`, plus a deterministic mock generator |
-| Patterns | [src/patterns.js](src/patterns.js) | 10 timing functions → `[0,1]` activation fraction per filled cell |
-| Effects | [src/effects.js](src/effects.js) | 10 appearance functions → a unique `@keyframes` timeline |
-| Catalog | [src/animationCatalog.js](src/animationCatalog.js) | patterns × effects → 100 names + resolver with safe fallback |
-| Themes | [src/themes.js](src/themes.js) | named palettes + custom `--colors=` parser |
-| Text | [src/textArt.js](src/textArt.js) | 3×5 dot-matrix font + left-to-right layout |
-| Render | [src/renderSvg.js](src/renderSvg.js) | assembles one SVG string |
-| CLI | [src/index.js](src/index.js) | `node src/index.js <user> <out> [flags]` |
+| `@gitpulse/core` | [packages/core](packages/core) | The animation engine. 10 timing **patterns** × 10 visual **effects** = 100 named forms, color **themes**, a 3×5 **text** font, a **DOM scraper** that reads GitHub's calendar, and the GraphQL fetch for Node contexts. Zero runtime dependencies. Pure — runs identically in Node and the browser. |
+| `@gitpulse/extension` | [packages/extension](packages/extension) | The Chrome/Edge **Manifest V3** extension. Content script finds the contribution calendar, scrapes it with `@gitpulse/core`, and swaps in `buildAnimatedSvg(...)`. Popup + options pages for local config. Accepts a config push from the dashboard via `externally_connectable`. |
+| `@gitpulse/site` | [packages/site](packages/site) | The hosted **dashboard**: a Vite static SPA (sign in with GitHub, design with a live preview, push to the extension) plus serverless functions in `api/` for the OAuth secret exchange and per-user config storage. |
 
-All filled cells share **one** loop `animation-duration` (filled-cell count ×
-a fixed per-step time), so the board stays in sync whichever pattern is chosen.
-The text panel runs on its **own** independent loop, since text length varies.
+The animation catalog (all 100 forms, with descriptions) is in
+[ANIMATIONS.md](ANIMATIONS.md), generated from the code by
+`npm run catalog` so it can't drift.
 
-The full form list lives in [ANIMATIONS.md](ANIMATIONS.md), which is
-**generated** by [scripts/generate-catalog-doc.js](scripts/generate-catalog-doc.js)
-(`npm run catalog`) straight from the code, so it can't drift.
-
-## CLI
-
-```
-node src/index.js <username> <outPath> [flags]
-node src/index.js --list-animations
-```
-
-| Flag | Meaning |
-| --- | --- |
-| `--animation=NAME` | form name (default `sweep-left-right--reveal`); unknown → warn + fallback |
-| `--theme=NAME` | `green` \| `blue` \| `purple` \| `red` \| `sunset` \| `mono` |
-| `--colors=HEX,...` | 5 level colors `[+ empty [+ accent]]` — **overrides** `--theme` |
-| `--text=STRING` | append an animated pixel-art panel (A–Z, 0–9, space) |
-| `--token=TOKEN` | GitHub token with `read:user` (else `GITHUB_TOKEN` / `GH_TOKEN` env) |
-| `--mock` | deterministic mock data, no network |
-
-### Examples
+## Quick start
 
 ```bash
-npm run list-animations
-npm run preview                       # mock data → preview.svg
+npm install            # installs all three workspaces
 
-node src/index.js octocat out.svg --mock --animation=spiral--pulse-glow --theme=purple
-node src/index.js octocat out.svg --mock --animation=scatter--twinkle --text="OCTOCAT"
-node src/index.js octocat out.svg --mock --colors="#0d1117,#0e4429,#006d32,#26a641,#39d353,#0d1117,#7cffb2"
+npm test               # @gitpulse/core unit tests
+npm run build:extension # -> packages/extension/dist  (load unpacked in Chrome)
+npm run dev:site        # dashboard on http://localhost:5173
 ```
 
-## Deployment — end to end
+### Load the extension
 
-1. **Preview locally, no token.**
-   ```bash
-   npm run list-animations
-   npm run preview
-   node src/index.js me preview.svg --mock --animation=diagonal-tl-br--flash-accent --theme=sunset --text="HELLO"
-   ```
-   Open `preview.svg` in a browser and try a few `--animation=` / `--theme=` /
-   `--text=` combinations.
+```
+npm run build:extension
+# chrome://extensions → enable "Developer mode" → "Load unpacked"
+# → select packages/extension/dist
+```
 
-2. **Confirm the real GraphQL path once.** Create a classic PAT with
-   `read:user`, then:
-   ```bash
-   node src/index.js <your-username> real.svg --token=ghp_xxx --animation=radial-center--pulse-glow
-   ```
+Open your GitHub profile. Click the extension icon to choose a form/theme/text;
+hover the graph and click **⚡ GitPulse** to peek at the original.
 
-3. **Push this project to its own repo**, e.g.
-   `github.com/<you>/contribution-graph-animator`.
-
-4. **Let Actions regenerate it on a schedule.**
-   [.github/workflows/generate.yml](.github/workflows/generate.yml) runs daily
-   on `cron` (+ `workflow_dispatch` for manual runs). It uses the built-in
-   `secrets.GITHUB_TOKEN`, renders `dist/contribution.svg`, and **force-pushes
-   only that file to a dedicated `output` branch** — `main` is never touched.
-   Configure the look with repo **Variables** (Settings → Secrets and variables
-   → Actions → Variables): `ANIMATION`, `THEME`, `COLORS`, `TEXT`. The manual
-   run also takes `animation` / `theme` / `text` inputs that override the
-   variables for that run.
-
-5. **Embed it in your profile README** (`github.com/<you>/<you>`) as a plain
-   markdown image so it silently refreshes:
-   ```markdown
-   ![My contributions](https://raw.githubusercontent.com/<you>/contribution-graph-animator/output/contribution.svg)
-   ```
-
-6. **(Optional) Publish the Action.** Tag a release (`v1`) and publish
-   [action.yml](action.yml) to the Marketplace. Others then consume it:
-   ```yaml
-   - uses: <you>/contribution-graph-animator@v1
-     with:
-       username: ${{ github.repository_owner }}
-       animation: scatter--twinkle
-       theme: blue
-       text: "MY NAME"
-   ```
-
-## Tests
+### Run the dashboard locally
 
 ```bash
-npm test        # renders all 100 forms against mock data; asserts no <script>, valid SVG
-npm run catalog # regenerates ANIMATIONS.md from the code
+cp .env.example .env      # fill in a GitHub OAuth app's client id/secret
+npm run dev:site
 ```
 
-## Constraints honored
+Without OAuth configured you can still click **“try it with sample data.”**
+`vercel dev` runs the `api/` functions; plain `npm run dev:site` serves only
+the SPA.
 
-- No client-side JS in the output — pure CSS `@keyframes` on `fill` / `opacity`
-  / `transform`.
-- One self-contained `.svg`, no external assets or fonts.
-- Zero runtime dependencies — Node's built-in `fetch`, no HTTP client library.
-- A combinatorial pattern × effect system, not one bespoke animation.
+## Deploying the dashboard
+
+`packages/site/vercel.json` is set up for Vercel: build command, output
+directory, `nodejs20.x` functions, SPA rewrites. Set these env vars in the
+project:
+
+| Var | Where | Purpose |
+| --- | --- | --- |
+| `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | server | OAuth app; callback URL `https://<site>/api/oauth/callback` |
+| `KV_REST_API_URL`, `KV_REST_API_TOKEN` | server | optional — persist per-user config (else in-memory, ephemeral) |
+| `VITE_API_BASE` | build | usually empty (same origin) |
+| `VITE_EXTENSION_ID` | build | published extension id, so “Push to extension” skips the prompt |
+
+Add the deployed origin to the extension's `externally_connectable.matches` in
+[packages/extension/manifest.json](packages/extension/manifest.json).
+
+## Design constraints (carried over from the engine)
+
+- The injected SVG has **no script** — pure CSS `@keyframes` on `fill` /
+  `opacity` / `transform`. It survives GitHub's CSP.
+- One self-contained SVG string, no external assets or fonts.
+- `@gitpulse/core` has **zero runtime dependencies**.
+- Animation = a **pattern × effect** combination, not one bespoke timeline.
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the data flow in detail.
+
+## License
+
+MIT
