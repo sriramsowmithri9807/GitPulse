@@ -1,0 +1,68 @@
+body.gp-options {
+  width: auto;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 32px 20px 64px;
+}
+.gp-options h1 {
+  margin: 0 0 4px;
+  font-size: 20px;
+}
+.gp-lead {
+  color: var(--muted);
+  margin: 0 0 24px;
+}
+.gp-options section {
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
+  margin-top: 20px;
+}
+.gp-options h2 {
+  font-size: 14px;
+  margin: 0 0 12px;
+}
+.gp-secondary {
+  margin-top: 10px;
+  padding: 5px 10px;
+  font: inherit;
+  color: var(--fg);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.gp-secondary:hover {
+  border-color: var(--accent);
+}
+.gp-idrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.gp-idrow code {
+  padding: 3px 6px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+#import-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+}
+#import-form textarea {
+  font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+  padding: 6px 8px;
+  color: var(--fg);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  resize: vertical;
+}
+#import-status.ok {
+  color: var(--accent);
+}
+#import-status.err {
+  color: #cf222e;
+}

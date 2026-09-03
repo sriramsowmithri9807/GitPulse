@@ -1,5 +1,12 @@
 // GraphQL fetch against contributionsCollection.contributionCalendar, plus a
 // deterministic mock-data generator so the tool can be previewed with no token.
+//
+// The extension prefers the zero-network DOM scraper (./domScrape.js); this
+// GraphQL path is for Node contexts — the dev CLI and the site's serverless
+// functions — where there is no rendered page to read.
+
+// Convenience re-export: "get contribution data" lives here conceptually.
+export { scrapeContributionGrid, parseCalendarEntries, entriesToGrid } from './domScrape.js';
 
 /**
  * Fetch a user's contribution calendar and normalize it into

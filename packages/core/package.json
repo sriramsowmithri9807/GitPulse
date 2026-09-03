@@ -1,0 +1,28 @@
+{
+  "name": "@gitpulse/core",
+  "version": "2.0.0",
+  "description": "Framework-agnostic engine behind GitPulse: 100 combinatorial contribution-graph animation forms, color themes, pixel-art text panel, live-DOM contribution scraper. Zero runtime dependencies.",
+  "type": "module",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./cli": "./src/cli.js"
+  },
+  "bin": {
+    "gitpulse": "src/cli.js"
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "preview": "node src/cli.js octocat preview.svg --mock --animation=radial-center--pulse-glow --theme=green --text=PREVIEW",
+    "list-animations": "node src/cli.js --list-animations",
+    "catalog": "node scripts/generate-catalog-doc.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}
