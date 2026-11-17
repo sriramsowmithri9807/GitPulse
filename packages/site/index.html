@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GitPulse — design your contribution graph animation</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <header class="site-head">
+      <strong>⚡ GitPulse</strong>
+      <div id="auth-slot"></div>
+    </header>
+
+    <main>
+      <section class="intro">
+        <h1>Animate your <em>live</em> GitHub contribution graph.</h1>
+        <p>
+          Design a form here, then push it to the browser extension — it replaces
+          the real streak grid on your profile. No README image, no separate page.
+        </p>
+      </section>
+
+      <section id="editor" class="editor" hidden>
+        <div class="controls" id="controls"></div>
+        <div class="stage">
+          <div id="preview" class="preview"></div>
+          <div class="stage-actions">
+            <button id="push-ext" class="primary">Push to extension</button>
+            <button id="export-code" class="ghost">Copy share code</button>
+            <span id="push-status"></span>
+          </div>
+        </div>
+      </section>
+
+      <section id="signed-out" class="signed-out">
+        <p>Sign in with GitHub to load your real graph and save your config.</p>
+        <button id="sign-in" class="primary">Sign in with GitHub</button>
+        <p class="fineprint">
+          Read-only: the <code>read:user</code> scope, used once to fetch your
+          contribution calendar. You can also
+          <button id="try-anon" class="linkish">try it with sample data</button>.
+        </p>
+      </section>
+    </main>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

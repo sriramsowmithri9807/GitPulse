@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GitPulse — Options</title>
+    <link rel="stylesheet" href="../popup/popup.css" />
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body class="gp-options">
+    <h1>⚡ GitPulse</h1>
+    <p class="gp-lead">
+      Animate your live GitHub contribution graph. Changes here apply the next
+      time a <code>github.com</code> profile loads.
+    </p>
+
+    <section>
+      <h2>Configuration</h2>
+      <div id="app"></div>
+      <button type="button" id="reset" class="gp-secondary">Reset to defaults</button>
+    </section>
+
+    <section>
+      <h2>Dashboard</h2>
+      <p>
+        Prefer to design on the web? Open the
+        <a id="dash-link" href="#" target="_blank" rel="noopener">GitPulse dashboard ↗</a>,
+        sign in with GitHub, and it can push a config straight to this extension.
+        It needs your extension id:
+      </p>
+      <p class="gp-idrow">
+        <code id="ext-id">…</code>
+        <button type="button" id="copy-id" class="gp-secondary">Copy</button>
+      </p>
+
+      <form id="import-form">
+        <label for="import-code">…or paste a share code</label>
+        <textarea id="import-code" rows="3" spellcheck="false"
+          placeholder="base64 code from the dashboard's Export button"></textarea>
+        <button type="submit" class="gp-secondary">Import code</button>
+        <span id="import-status"></span>
+      </form>
+    </section>
+
+    <script type="module" src="options.js"></script>
+  </body>
+</html>

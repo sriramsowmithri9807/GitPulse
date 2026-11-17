@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Core — tests
+        run: npm test
+
+      - name: Core — catalog is in sync
+        run: |
+          npm run catalog
+          git diff --exit-code ANIMATIONS.md
+
+      - name: Extension — build
+        run: npm run build:extension
+
+      - name: Site — build
+        run: npm run build:site
+
+      - name: Upload extension bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitpulse-extension
+          path: packages/extension/dist

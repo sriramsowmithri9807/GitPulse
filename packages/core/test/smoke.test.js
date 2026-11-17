@@ -8,7 +8,7 @@ import { CATALOG, resolveAnimation, FALLBACK } from '../src/animationCatalog.js'
 import { PATTERN_NAMES } from '../src/patterns.js';
 import { EFFECT_NAMES } from '../src/effects.js';
 import { renderSvg } from '../src/renderSvg.js';
-import { generateMockGrid } from '../src/fetchContributions.js';
+import { generateMockGrid } from '../src/contributions.js';
 import { getPalette, parseCustomPalette, THEMES } from '../src/themes.js';
 import { layoutText } from '../src/textArt.js';
 

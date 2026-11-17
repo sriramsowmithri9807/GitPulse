@@ -1,16 +1,23 @@
 {
-  "name": "contribution-graph-animator",
-  "version": "1.0.0",
-  "description": "Generate a looping, script-free animated SVG of a GitHub contribution graph with a combinatorial library of animation forms, custom text panels, and color themes.",
+  "name": "gitpulse",
+  "version": "2.0.0",
+  "private": true,
+  "description": "GitPulse — a browser extension (plus a hosted dashboard) that animates your live GitHub contribution graph. Pick a form, theme, and text; it replaces the real streak grid on github.com. Not a README image, not a profile embed.",
   "type": "module",
-  "bin": {
-    "contribution-graph-animator": "src/index.js"
-  },
+  "workspaces": [
+    "packages/core",
+    "packages/extension",
+    "packages/site"
+  ],
   "scripts": {
-    "preview": "node src/index.js octocat preview.svg --mock --animation=radial-center--pulse-glow --theme=green --text=PREVIEW",
-    "list-animations": "node src/index.js --list-animations",
-    "catalog": "node scripts/generate-catalog-doc.js",
-    "test": "node --test"
+    "test": "npm run test --workspace @gitpulse/core",
+    "catalog": "npm run catalog --workspace @gitpulse/core",
+    "preview": "npm run preview --workspace @gitpulse/core",
+    "list-animations": "npm run list-animations --workspace @gitpulse/core",
+    "build": "npm run build --workspace @gitpulse/extension && npm run build --workspace @gitpulse/site",
+    "build:extension": "npm run build --workspace @gitpulse/extension",
+    "build:site": "npm run build --workspace @gitpulse/site",
+    "dev:site": "npm run dev --workspace @gitpulse/site"
   },
   "engines": {
     "node": ">=18"

@@ -1,0 +1,18 @@
+{
+  "name": "@gitpulse/site",
+  "version": "2.0.0",
+  "description": "GitPulse dashboard: sign in with GitHub, design an animation with a live preview, and push it to the browser extension.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@gitpulse/core": "*"
+  },
+  "devDependencies": {
+    "vite": "^8.0.0"
+  }
+}
